@@ -37,12 +37,39 @@
             align-items: center;
             justify-content: center;
             transition: opacity 0.5s;
+            /* 背景にうっすらコートの模様を入れる（オプション） */
+            background-image:
+                linear-gradient(rgba(15, 15, 26, 0.9), rgba(15, 15, 26, 0.9)),
+                linear-gradient(transparent 95%, #555 95%),
+                linear-gradient(90deg, transparent 95%, #555 95%);
+            background-size: cover, 100px 100px, 100px 100px;
         }
+
+        /* タイトルとロボットを横並びにするコンテナ */
+        #title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* ロボットと文字の間隔 */
+            margin-bottom: 50px;
+        }
+
+        /* タイトル画面のロボット画像 */
+        .title-robot {
+            width: 120px; /* サイズ調整 */
+            height: auto;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.5)); /* 共通の影 */
+        }
+        /* 青ロボット固有の影 */
+        .robot-left { filter: drop-shadow(0 0 20px #00d2ff); }
+        /* 赤ロボット固有の影 */
+        .robot-right { filter: drop-shadow(0 0 20px #ff0055); }
+
         #main-menu h1 {
             font-size: 70px;
             color: #00d2ff;
             text-shadow: 0 0 20px #00d2ff, 4px 4px 0px #ff0055;
-            margin-bottom: 50px;
+            margin-bottom: 0; /* コンテナ側で余白を取るのでここは0にする */
             line-height: 1.2;
         }
         .menu-btn {
@@ -71,7 +98,7 @@
         #btn-2p { border-color: #ff0055; color: #ff0055; text-shadow: 0 0 10px #ff0055; box-shadow: 0 0 15px rgba(255, 0, 85, 0.3); }
         #btn-2p:hover { background-color: #ff0055; color: white; }
 
-        .sound-note { margin-top: 30px; font-size: 14px; opacity: 0.6; }
+        /* .sound-note クラスは削除しました */
 
         /* --- ゲーム内共通ボタン --- */
         .back-to-menu-btn {
@@ -293,11 +320,14 @@
 <body>
 
     <div id="main-menu">
-        <h1>NEON HOOPS<br>COLLECTION</h1>
+        <div id="title-container">
+            <img src="robot_blue.png" alt="Blue Robot" class="title-robot robot-left">
+            <h1>NEON HOOPS<br>COLLECTION</h1>
+            <img src="robot_red.png" alt="Red Robot" class="title-robot robot-right">
+        </div>
         <button id="btn-1p" class="menu-btn" onclick="selectMode('1p')">1 PLAYER</button>
         <button id="btn-2p" class="menu-btn" onclick="selectMode('2p')">2 PLAYERS</button>
-        <p class="sound-note">(Sound will start on click)</p>
-    </div>
+        </div>
 
     <div id="game1-container" class="hidden">
         <h1 class="bg-title-1p">NEON HOOPS</h1>
@@ -819,4 +849,3 @@
     </script>
 </body>
 </html>
-
