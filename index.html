@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>NEON HOOPS: COLLECTION</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+        body {
+            font-family: sans-serif;
+            background-color: #0f0f1a;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- 共通スタイル --- */
+        h1, h2, div, p, span, button { font-family: 'Orbitron', sans-serif; }
+        
+        .hidden { display: none !important; }
+
+        /* --- メインメニュー画面 --- */
+        #main-menu {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0f0f1a;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+        }
+        #main-menu h1 {
+            font-size: 70px;
+            color: #00d2ff;
+            text-shadow: 0 0 20px #00d2ff, 4px 4px 0px #ff0055;
+            margin-bottom: 50px;
+            line-height: 1.2;
+        }
+        .menu-btn {
+            background: transparent;
+            border: 3px solid white;
+            color: white;
+            padding: 20px 50px;
+            font-size: 30px;
+            margin: 15px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s;
+            width: 300px;
+            text-shadow: 0 0 10px white;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+        .menu-btn:hover {
+            transform: scale(1.1);
+            background-color: white;
+            color: #0f0f1a;
+            box-shadow: 0 0 30px rgba(255,255,255,0.8);
+        }
+        #btn-1p { border-color: #00d2ff; color: #00d2ff; text-shadow: 0 0 10px #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
+        #btn-1p:hover { background-color: #00d2ff; color: black; }
+        
+        #btn-2p { border-color: #ff0055; color: #ff0055; text-shadow: 0 0 10px #ff0055; box-shadow: 0 0 15px rgba(255, 0, 85, 0.3); }
+        #btn-2p:hover { background-color: #ff0055; color: white; }
+
+        .sound-note { margin-top: 30px; font-size: 14px; opacity: 0.6; }
+
+        /* --- ゲーム内共通ボタン --- */
+        .back-to-menu-btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            font-size: 18px;
+            background-color: #444;
+            color: white;
+            border: 1px solid white;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .back-to-menu-btn:hover { background-color: #666; }
+
+        /* =========================================
+           GAME 1 (1 Player) Styles
+           ========================================= */
+        #game1-container { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        
+        .bg-title-1p {
+            font-size: 48px; margin: 20px 0 30px 0; color: #00d2ff;
+            text-shadow: 0 0 20px #00d2ff; opacity: 0.3; position: relative; z-index: 1;
+        }
+        #wrapper-1p {
+            transform: scale(1.5); transform-origin: center top; margin-bottom: 230px; position: relative; z-index: 10;
+        }
+        #game-area-1p {
+            position: relative; width: 700px; height: 400px;
+            background-color: #222;
+            background-image: linear-gradient(transparent 95%, #555 95%);
+            background-size: 100px 100px;
+            border: 4px solid #666;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+            border-radius: 10px; overflow: hidden;
+        }
+        #ui-layer-1p {
+            position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around;
+            font-size: 20px; font-weight: bold; z-index: 20; text-shadow: 1px 1px 2px black;
+        }
+        #hoop-container-1p { position: absolute; right: 40px; bottom: 210px; width: 10px; height: 100px; z-index: 10; }
+        #backboard-1p {
+            position: absolute; top: 0; right: 0; width: 8px; height: 80px;
+            background-color: white; border: 1px solid #ccc;
+        }
+        #rim-1p {
+            position: absolute; bottom: 10px; right: 10px; width: 50px; height: 6px;
+            background-color: orange; border-radius: 3px; z-index: 16;
+        }
+        #net-1p {
+            position: absolute; bottom: -20px; right: 15px; width: 40px; height: 30px;
+            border-left: 2px dashed white; border-right: 2px dashed white; border-bottom: 2px dashed white;
+            opacity: 0.7; z-index: 14;
+        }
+        #pole-1p {
+            position: absolute; right: 40px; bottom: 0; width: 10px; height: 210px; background-color: #444;
+        }
+        #ball-1p {
+            position: absolute; bottom: 70px; left: 60px; font-size: 40px; width: 40px; height: 40px;
+            line-height: 40px; z-index: 15;
+        }
+        
+        /* 1P ロボット画像設定 */
+        #player-pos-1p {
+            position: absolute; bottom: 0; left: 20px; 
+            width: 80px; height: 100px; 
+            background-color: transparent;
+            background-image: url('robot_blue.png'); /* 画像指定 */
+            background-size: contain; background-repeat: no-repeat; background-position: center bottom;
+            z-index: 14; 
+            filter: drop-shadow(0 0 10px #00d2ff);
+        }
+
+        #meter-container-1p {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 20px; background-color: #444; border: 2px solid #fff;
+            border-radius: 10px; z-index: 30; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        #meter-fill-1p {
+            width: 0%; height: 100%; background-color: #ffcc00; border-radius: 8px; transition: width 0.02s linear;
+        }
+        #message-1p {
+            position: absolute; top: 30%; width: 100%; font-size: 50px; font-weight: bold;
+            text-shadow: 2px 2px 4px #000; display: none; z-index: 30;
+        }
+        #game-over-screen-1p {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); z-index: 50; display: none;
+            flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;
+        }
+        .action-btn {
+            padding: 15px 40px; font-size: 24px; background-color: #00d2ff; color: #000; border: none;
+            border-radius: 50px; cursor: pointer; font-weight: bold; transition: all 0.2s;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.5); pointer-events: auto;
+        }
+        .action-btn:hover { transform: scale(1.1); background-color: #fff; box-shadow: 0 0 25px rgba(0, 210, 255, 0.8); }
+        .controls-1p p { margin-top: 15px; font-size: 16px; color: #ccc; }
+
+
+        /* =========================================
+           GAME 2 (2 Player) Styles
+           ========================================= */
+        #game2-container { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+
+        .bg-title-2p {
+            font-size: 48px; margin: 20px 0 30px 0; color: #fff;
+            text-shadow: 0 0 20px #fff; opacity: 0.1; position: relative; z-index: 1;
+        }
+        #wrapper-2p {
+            transform: scale(1.5); transform-origin: center top; margin-bottom: 230px; position: relative; z-index: 10;
+        }
+        #game-area-2p {
+            position: relative; width: 700px; height: 400px;
+            background-color: #222;
+            background-image: linear-gradient(transparent 95%, #555 95%);
+            background-size: 100px 100px;
+            border: 4px solid #666;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            border-radius: 10px; overflow: hidden;
+        }
+        #center-line-2p {
+            position: absolute; left: 50%; top: 0; bottom: 0; width: 2px;
+            background-color: rgba(255, 255, 255, 0.1); transform: translateX(-50%); z-index: 5;
+        }
+        #ui-layer-2p {
+            position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-between;
+            padding: 0 20px; box-sizing: border-box; font-size: 24px; font-weight: bold;
+            z-index: 20; text-shadow: 2px 2px 4px black;
+        }
+        #score-p1-display { color: #00d2ff; text-shadow: 0 0 5px #00d2ff; }
+        #score-p2-display { color: #ff0055; text-shadow: 0 0 5px #ff0055; }
+        
+        #hoop-container-2p {
+            position: absolute; left: 50%; transform: translateX(-50%); bottom: 210px;
+            width: 10px; height: 100px; z-index: 10;
+        }
+        #backboard-2p {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 90px; background-color: rgba(255, 255, 255, 0.9);
+            border: 3px solid #ccc; border-radius: 5px; z-index: 11;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        #backboard-2p::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 40px; border: 3px solid #ff0055; border-bottom: none;
+        }
+        #rim-2p {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 6px; background-color: orange; border-radius: 3px; z-index: 16;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        #net-2p {
+            position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 30px; border-left: 2px dashed white;
+            border-right: 2px dashed white; border-bottom: 2px dashed white; opacity: 0.7; z-index: 14;
+        }
+
+        .meter-container-v {
+            position: absolute; bottom: 50px; width: 40px; border-radius: 5px;
+            display: flex; flex-direction: column-reverse; z-index: 12; height: 200px;
+        }
+        .meter-fill-v { width: 100%; height: 0%; border-radius: 3px; }
+
+        /* P1 (Left - Blue Robot) */
+        #ball-p1 {
+            position: absolute; bottom: 70px; left: 60px; font-size: 40px; width: 40px; height: 40px;
+            z-index: 15; filter: drop-shadow(0 0 5px #00d2ff); transition: opacity 0.1s;
+        }
+        #pos-p1 {
+            position: absolute; bottom: 0; left: 10px;
+            width: 80px; height: 100px;
+            background-color: transparent;
+            background-image: url('robot_blue.png'); /* 画像指定 */
+            background-size: contain; background-repeat: no-repeat; background-position: center bottom;
+            z-index: 14; filter: drop-shadow(0 0 10px #00d2ff);
+        }
+        #meter-cnt-p1 {
+            left: 10px; background-color: rgba(0, 50, 80, 0.5);
+            border: 2px solid #00d2ff; box-shadow: 0 0 5px rgba(0, 210, 255, 0.3);
+        }
+        #meter-fill-p1 { background-color: #00d2ff; box-shadow: 0 0 10px #00d2ff; }
+
+        /* P2 (Right - Red Robot) */
+        #ball-p2 {
+            position: absolute; bottom: 70px; right: 60px; font-size: 40px; width: 40px; height: 40px;
+            z-index: 15; filter: hue-rotate(140deg) drop-shadow(0 0 5px #ff0055); transition: opacity 0.1s;
+        }
+        #pos-p2 {
+            position: absolute; bottom: 0; right: 10px;
+            width: 80px; height: 100px;
+            background-color: transparent;
+            background-image: url('robot_red.png'); /* 画像指定 */
+            background-size: contain; background-repeat: no-repeat; background-position: center bottom;
+            z-index: 14; filter: drop-shadow(0 0 10px #ff0055);
+        }
+        #meter-cnt-p2 {
+            right: 10px; background-color: rgba(80, 0, 20, 0.5);
+            border: 2px solid #ff0055; box-shadow: 0 0 5px rgba(255, 0, 85, 0.3);
+        }
+        #meter-fill-p2 { background-color: #ff0055; box-shadow: 0 0 10px #ff0055; }
+
+        .msg-float {
+            position: absolute; top: 50%; width: 200px; font-size: 40px; font-weight: bold;
+            display: none; z-index: 30; text-align: center; pointer-events: none;
+        }
+        #msg-p1 { left: 60px; color: #00d2ff; text-shadow: 0 0 20px #00d2ff; transform: rotate(-10deg); }
+        #msg-p2 { right: 60px; color: #ff0055; text-shadow: 0 0 20px #ff0055; transform: rotate(10deg); }
+
+        #game-over-screen-2p {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); z-index: 50; display: none;
+            flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;
+        }
+        .controls-2p { position: relative; z-index: 100; margin-top: 10px; display: flex; gap: 50px; }
+        .p1-ctrl { color: #00d2ff; font-weight: bold; text-shadow: 0 0 5px #00d2ff; }
+        .p2-ctrl { color: #ff0055; font-weight: bold; text-shadow: 0 0 5px #ff0055; }
+
+    </style>
+</head>
+<body>
+
+    <div id="main-menu">
+        <h1>NEON HOOPS<br>COLLECTION</h1>
+        <button id="btn-1p" class="menu-btn" onclick="selectMode('1p')">1 PLAYER</button>
+        <button id="btn-2p" class="menu-btn" onclick="selectMode('2p')">2 PLAYERS</button>
+        <p class="sound-note">(Sound will start on click)</p>
+    </div>
+
+    <div id="game1-container" class="hidden">
+        <h1 class="bg-title-1p">NEON HOOPS</h1>
+        <div id="wrapper-1p">
+            <div id="game-area-1p">
+                <div id="ui-layer-1p">
+                    <div>TIME: <span id="timer-1p">30</span></div>
+                    <div>SCORE: <span id="score-1p">0</span></div>
+                </div>
+                <div id="pole-1p"></div>
+                <div id="hoop-container-1p">
+                    <div id="backboard-1p"></div>
+                    <div id="net-1p"></div>
+                    <div id="rim-1p"></div>
+                </div>
+                <div id="message-1p">GOAL!</div>
+                <div id="player-pos-1p"></div>
+                <div id="ball-1p">🏀</div>
+                <div id="meter-container-1p"><div id="meter-fill-1p"></div></div>
+                <div id="game-over-screen-1p">
+                    <h2>TIME UP!</h2>
+                    <div>SCORE</div>
+                    <div id="final-score-1p" style="font-size:80px; margin-bottom:20px;">0</div>
+                    <button class="action-btn" onclick="Game1.retry()">RETRY</button>
+                    <button class="back-to-menu-btn" onclick="returnToMenu()">BACK TO TITLE</button>
+                </div>
+            </div>
+        </div>
+        <div class="controls-1p">
+            <p>Hold Space or Up Arrow(↑) to shoot</p>
+        </div>
+    </div>
+
+    <div id="game2-container" class="hidden">
+        <h1 class="bg-title-2p">VERSUS MODE</h1>
+        <div id="wrapper-2p">
+            <div id="game-area-2p">
+                <div id="center-line-2p"></div>
+                <div id="ui-layer-2p">
+                    <div id="score-p1-display">P1: 0</div>
+                    <div id="timer-display-2p">30</div>
+                    <div id="score-p2-display">P2: 0</div>
+                </div>
+                <div id="hoop-container-2p">
+                    <div id="backboard-2p"></div>
+                    <div id="net-2p"></div>
+                    <div id="rim-2p"></div>
+                </div>
+                <div id="msg-p1" class="msg-float">GOAL!</div>
+                <div id="pos-p1"></div>
+                <div id="ball-p1">🏀</div>
+                <div id="meter-cnt-p1" class="meter-container-v"><div id="meter-fill-p1" class="meter-fill-v"></div></div>
+                <div id="msg-p2" class="msg-float">GOAL!</div>
+                <div id="pos-p2"></div>
+                <div id="ball-p2">🏀</div>
+                <div id="meter-cnt-p2" class="meter-container-v"><div id="meter-fill-p2" class="meter-fill-v"></div></div>
+
+                <div id="game-over-screen-2p">
+                    <h2>TIME UP!</h2>
+                    <div id="winner-display" style="font-size:50px; margin-bottom:20px; font-weight:bold;">DRAW</div>
+                    <div style="display:flex; gap:20px; font-size:24px; margin-bottom:20px;">
+                        <div style="color:#00d2ff">P1: <span id="final-p1">0</span></div>
+                        <div style="color:#ff0055">P2: <span id="final-p2">0</span></div>
+                    </div>
+                    <button class="action-btn" onclick="Game2.retry()">REMATCH</button>
+                    <button class="back-to-menu-btn" onclick="returnToMenu()">BACK TO TITLE</button>
+                </div>
+            </div>
+        </div>
+        <div class="controls-2p">
+            <div class="p1-ctrl">PLAYER 1: Press "A"</div>
+            <div class="p2-ctrl">PLAYER 2: Press "L"</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 共通オーディオ管理 ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let isBgmPlaying = false;
+        let currentMode = 'menu'; // 'menu', '1p', '2p'
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!isBgmPlaying) {
+                isBgmPlaying = true;
+                playRetroLoop();
+            }
+        }
+
+        function playRetroLoop() {
+            if (!isBgmPlaying) return;
+            const tempo = 0.15;
+            // Cmaj7 -> Dm7 loop
+            const notes = [
+                261.63, 329.63, 392.00, 493.88, 261.63, 329.63, 392.00, 493.88,
+                293.66, 349.23, 440.00, 523.25, 293.66, 349.23, 440.00, 523.25
+            ];
+            let noteIndex = 0;
+            function playNextNote() {
+                if (!isBgmPlaying || !audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(notes[noteIndex], audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + tempo);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + tempo);
+                noteIndex = (noteIndex + 1) % notes.length;
+                setTimeout(playNextNote, tempo * 1000);
+            }
+            playNextNote();
+        }
+
+        function playSwishSound() {
+            if (!audioCtx) return;
+            try {
+                const bufferSize = audioCtx.sampleRate * 0.5;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.8 * (1 - i / bufferSize);
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                noise.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start();
+            } catch(e){}
+        }
+
+        // --- メニュー操作 ---
+        function selectMode(mode) {
+            initAudio();
+            document.getElementById('main-menu').classList.add('hidden');
+            currentMode = mode;
+
+            if (mode === '1p') {
+                document.getElementById('game1-container').classList.remove('hidden');
+                Game1.start();
+            } else if (mode === '2p') {
+                document.getElementById('game2-container').classList.remove('hidden');
+                Game2.start();
+            }
+        }
+
+        function returnToMenu() {
+            Game1.stop();
+            Game2.stop();
+            currentMode = 'menu';
+            document.getElementById('game1-container').classList.add('hidden');
+            document.getElementById('game2-container').classList.add('hidden');
+            document.getElementById('main-menu').classList.remove('hidden');
+        }
+
+        // ==========================================
+        //  GAME 1 Logic (Single Player) - Scoped
+        // ==========================================
+        const Game1 = {
+            score: 0,
+            timeLeft: 30,
+            isActive: false,
+            isCharging: false,
+            isBallFlying: false,
+            power: 0,
+            chargeInterval: null,
+            timerInterval: null,
+            
+            // Elements
+            ball: null, meterFill: null, scoreDisp: null, timerDisp: null, msgDisp: null, gameOverScreen: null, finalScore: null,
+
+            init() {
+                this.ball = document.getElementById('ball-1p');
+                this.meterFill = document.getElementById('meter-fill-1p');
+                this.scoreDisp = document.getElementById('score-1p');
+                this.timerDisp = document.getElementById('timer-1p');
+                this.msgDisp = document.getElementById('message-1p');
+                this.gameOverScreen = document.getElementById('game-over-screen-1p');
+                this.finalScore = document.getElementById('final-score-1p');
+            },
+
+            start() {
+                this.init();
+                this.score = 0;
+                this.timeLeft = 30;
+                this.scoreDisp.textContent = 0;
+                this.timerDisp.textContent = 30;
+                this.isActive = true;
+                this.isBallFlying = false;
+                this.gameOverScreen.style.display = 'none';
+                this.resetBall();
+
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    this.timerDisp.textContent = this.timeLeft;
+                    if (this.timeLeft <= 0) this.end();
+                }, 1000);
+            },
+
+            stop() {
+                this.isActive = false;
+                clearInterval(this.timerInterval);
+                clearInterval(this.chargeInterval);
+            },
+
+            retry() {
+                this.start();
+            },
+
+            end() {
+                this.isActive = false;
+                clearInterval(this.timerInterval);
+                clearInterval(this.chargeInterval);
+                this.finalScore.textContent = this.score;
+                this.gameOverScreen.style.display = 'flex';
+            },
+
+            handleKeyDown(e) {
+                if (!this.isActive || this.isBallFlying) return;
+                if ((e.key === 'ArrowUp' || e.code === 'Space') && !this.isCharging) this.startCharging();
+            },
+
+            handleKeyUp(e) {
+                if (!this.isActive || this.isBallFlying) return;
+                if ((e.key === 'ArrowUp' || e.code === 'Space') && this.isCharging) this.shoot();
+            },
+
+            startCharging() {
+                this.isCharging = true;
+                this.power = 0;
+                this.meterFill.style.width = '0%';
+                let direction = 1;
+                const chargeSpeed = 9;
+                
+                clearInterval(this.chargeInterval);
+                this.chargeInterval = setInterval(() => {
+                    this.power += chargeSpeed * direction;
+                    if (this.power >= 100) { this.power = 100; direction = -1; }
+                    else if (this.power <= 0) { this.power = 0; direction = 1; }
+                    
+                    this.meterFill.style.width = this.power + '%';
+                    if(this.power > 90) {
+                        this.meterFill.style.backgroundColor = '#00d2ff';
+                        this.meterFill.style.boxShadow = '0 0 15px #00d2ff';
+                    } else {
+                        this.meterFill.style.backgroundColor = '#ffcc00';
+                        this.meterFill.style.boxShadow = '0 0 10px #ffcc00';
+                    }
+                }, 20);
+            },
+
+            shoot() {
+                this.isCharging = false;
+                this.isBallFlying = true;
+                clearInterval(this.chargeInterval);
+                
+                let difficulty = 0.95;
+                let minPower = 85;
+                const hitChance = this.power * difficulty;
+                const isGoal = Math.random() * 100 <= hitChance && this.power >= minPower;
+                
+                this.animateShot(isGoal, this.power);
+            },
+
+            animateShot(isDestined, powerVal) {
+                // ロボットの位置に合わせて調整
+                let startX = 60; let startY = 70;
+                let currentX = startX; let currentY = startY;
+                const rimHeight = 220; const rimLeft = 600; const rimRight = 650; const backboardX = 650;
+                const gravity = 0.8; const frames = 45;
+                let speedX, speedY;
+
+                if (isDestined) {
+                    const tx = 610; const ty = 200;
+                    speedX = (tx - startX) / frames;
+                    speedY = (ty - startY + 0.5 * gravity * frames * frames) / frames;
+                } else {
+                    const mx = Math.random() < 0.5 ? 550 : 680;
+                    speedX = (mx - startX) / frames;
+                    if (powerVal < 30) speedX *= 0.6;
+                    speedY = (200 - startY + 0.5 * gravity * frames * frames) / frames;
+                }
+
+                let hasScored = false;
+                const frame = () => {
+                    if (!this.isActive) return;
+                    let prevY = currentY;
+                    currentX += speedX; currentY += speedY; speedY -= gravity;
+
+                    if (speedX > 0 && currentX + 40 >= backboardX && currentY > rimHeight) {
+                        speedX *= -0.6; currentX = backboardX - 45;
+                    }
+
+                    this.ball.style.left = currentX + 'px';
+                    this.ball.style.bottom = currentY + 'px';
+
+                    if (!hasScored && prevY >= rimHeight && currentY < rimHeight && currentX > rimLeft && currentX < rimRight && speedY < 0) {
+                        hasScored = true; playSwishSound(); this.ball.style.zIndex = 13;
+                    }
+
+                    if (currentY <= 0) {
+                        currentY = 0; this.ball.style.bottom = '0px';
+                        this.finishShot(hasScored); return;
+                    }
+                    if (currentX > 750 || currentX < -50) {
+                        this.finishShot(hasScored); return;
+                    }
+                    requestAnimationFrame(frame);
+                };
+                frame();
+            },
+
+            finishShot(scored) {
+                if(scored) {
+                    this.score += 3; this.scoreDisp.textContent = this.score;
+                    this.showMessage("3 POINTS!", "#00d2ff");
+                } else {
+                    this.showMessage("MISS...", "gray");
+                }
+                setTimeout(() => { if(this.isActive) this.resetBall(); }, 800);
+            },
+
+            resetBall() {
+                this.isBallFlying = false;
+                // ボール位置修正
+                this.ball.style.left = '60px'; this.ball.style.bottom = '70px'; this.ball.style.zIndex = 15;
+                this.power = 0;
+                this.meterFill.style.width = '0%';
+                this.meterFill.style.boxShadow = 'none';
+                this.meterFill.style.backgroundColor = '#ffcc00';
+            },
+
+            showMessage(text, color) {
+                this.msgDisp.textContent = text; this.msgDisp.style.color = color;
+                this.msgDisp.style.textShadow = `0 0 10px ${color}`;
+                this.msgDisp.style.display = 'block';
+                setTimeout(() => { this.msgDisp.style.display = 'none'; }, 700);
+            }
+        };
+
+        // ==========================================
+        //  GAME 2 Logic (Versus) - Scoped
+        // ==========================================
+        class G2Player {
+            constructor(id, ballId, meterId, scoreId, msgId, color, dir, key) {
+                this.id = id; this.ballId = ballId; this.meterId = meterId;
+                this.scoreId = scoreId; this.msgId = msgId; this.color = color;
+                this.dir = dir; this.key = key;
+                this.score = 0; this.power = 0;
+                this.isCharging = false; this.isFlying = false;
+                this.chargeInt = null;
+            }
+            initDOM() {
+                this.ballElem = document.getElementById(this.ballId);
+                this.meterElem = document.getElementById(this.meterId);
+                this.scoreElem = document.getElementById(this.scoreId);
+                this.msgElem = document.getElementById(this.msgId);
+            }
+            reset() {
+                this.score = 0; this.scoreElem.textContent = `P${this.id}: 0`;
+                this.resetBall();
+            }
+            resetBall() {
+                this.isFlying = false; this.power = 0; this.meterElem.style.height = '0%';
+                this.isCharging = false; clearInterval(this.chargeInt);
+                this.ballElem.style.opacity = 1; 
+                // ボール高さ修正
+                this.ballElem.style.bottom = '70px';
+                if(this.dir===1) { 
+                    this.ballElem.style.left='60px'; this.ballElem.style.right='auto'; 
+                } else { 
+                    this.ballElem.style.right='60px'; this.ballElem.style.left='auto'; 
+                }
+                this.ballElem.style.zIndex = 15;
+            }
+            startCharge() {
+                if(this.isFlying) return;
+                this.isCharging = true; this.power = 0; let cDir = 1; const spd = 8;
+                clearInterval(this.chargeInt);
+                this.chargeInt = setInterval(()=>{
+                    this.power += spd * cDir;
+                    if(this.power >= 100){ this.power=100; cDir=-1; }
+                    else if(this.power <= 0){ this.power=0; cDir=1; }
+                    this.meterElem.style.height = this.power+'%';
+                }, 20);
+            }
+            shoot() {
+                if(!this.isCharging) return;
+                this.isCharging = false; this.isFlying = true;
+                clearInterval(this.chargeInt);
+                let diff = 0.9; let minP = 80;
+                let hit = Math.random()*100 <= this.power*diff && this.power >= minP;
+                this.animate(hit);
+            }
+            animate(hit) {
+                // ロボット位置に合わせて調整
+                let sx = (this.dir===1) ? 60 : 600; 
+                let sy = 70;
+                let cx = sx; let cy = sy;
+                const rH = 220; const rL = 320; const rR = 380;
+                const grav = 0.8; const frames = 50;
+                let spX, spY;
+
+                if(hit) {
+                    spX = (350 - sx)/frames;
+                    spY = (200 - sy + 0.5*grav*frames*frames)/frames;
+                } else {
+                    let off = (Math.random()<0.5?-60:60);
+                    if(this.power<30) off = (this.dir===1?-150:150);
+                    spX = (350+off - sx)/frames;
+                    spY = (200 - sy + 0.5*grav*frames*frames)/frames;
+                }
+                let scored = false; let finished = false;
+                const frame = () => {
+                    if(!Game2.isActive || finished) return;
+                    let pY = cy;
+                    cx += spX; cy += spY; spY -= grav;
+                    this.ballElem.style.left = cx + 'px'; this.ballElem.style.bottom = cy + 'px';
+                    if (!scored && pY >= rH && cy < rH && cx > rL && cx < rR && spY < 0) {
+                        scored = true; playSwishSound(); this.ballElem.style.zIndex = 13;
+                    }
+                    if (cy <= 0 || cx < -50 || cx > 750) {
+                        finished = true; this.finish(scored); return;
+                    }
+                    requestAnimationFrame(frame);
+                };
+                frame();
+            }
+            finish(scored) {
+                this.ballElem.style.opacity = 0;
+                if(scored) {
+                    this.score+=3; this.scoreElem.textContent = `P${this.id}: ${this.score}`;
+                    this.msg("3PT!", this.color);
+                } else { this.msg("MISS", "gray"); }
+                setTimeout(()=>{ if(Game2.isActive) this.resetBall(); }, 800);
+            }
+            msg(txt, col) {
+                this.msgElem.textContent = txt; this.msgElem.style.color = col;
+                this.msgElem.style.textShadow = `0 0 20px ${col}`;
+                this.msgElem.style.display = 'block';
+                setTimeout(()=>{ this.msgElem.style.display='none'; }, 700);
+            }
+        }
+
+        const Game2 = {
+            isActive: false, timeLeft: 30, timerInt: null,
+            p1: new G2Player(1, 'ball-p1', 'meter-fill-p1', 'score-p1-display', 'msg-p1', '#00d2ff', 1, 'KeyA'),
+            p2: new G2Player(2, 'ball-p2', 'meter-fill-p2', 'score-p2-display', 'msg-p2', '#ff0055', -1, 'KeyL'),
+            timerDisplay: null, screen: null, winTxt: null,
+
+            init() {
+                this.timerDisplay = document.getElementById('timer-display-2p');
+                this.screen = document.getElementById('game-over-screen-2p');
+                this.winTxt = document.getElementById('winner-display');
+                this.p1.initDOM();
+                this.p2.initDOM();
+            },
+            start() {
+                this.init();
+                this.timeLeft = 30; this.timerDisplay.textContent = 30;
+                this.isActive = true; this.screen.style.display = 'none';
+                this.p1.reset(); this.p2.reset();
+                clearInterval(this.timerInt);
+                this.timerInt = setInterval(() => {
+                    this.timeLeft--; this.timerDisplay.textContent = this.timeLeft;
+                    if(this.timeLeft<=0) this.end();
+                }, 1000);
+            },
+            stop() {
+                this.isActive = false; clearInterval(this.timerInt);
+                clearInterval(this.p1.chargeInt); clearInterval(this.p2.chargeInt);
+            },
+            retry() { this.start(); },
+            end() {
+                this.isActive = false; clearInterval(this.timerInt);
+                clearInterval(this.p1.chargeInt); clearInterval(this.p2.chargeInt);
+                document.getElementById('final-p1').textContent = this.p1.score;
+                document.getElementById('final-p2').textContent = this.p2.score;
+                if(this.p1.score > this.p2.score) {
+                    this.winTxt.textContent = "PLAYER 1 WINS!";
+                    this.winTxt.style.color = "#00d2ff"; this.winTxt.style.textShadow = "0 0 20px #00d2ff";
+                } else if(this.p2.score > this.p1.score) {
+                    this.winTxt.textContent = "PLAYER 2 WINS!";
+                    this.winTxt.style.color = "#ff0055"; this.winTxt.style.textShadow = "0 0 20px #ff0055";
+                } else {
+                    this.winTxt.textContent = "DRAW GAME";
+                    this.winTxt.style.color = "white"; this.winTxt.style.textShadow = "none";
+                }
+                this.screen.style.display = 'flex';
+            },
+            handleKeyDown(e) {
+                if(!this.isActive) return;
+                if(e.code === this.p1.key && !this.p1.isCharging) this.p1.startCharge();
+                if(e.code === this.p2.key && !this.p2.isCharging) this.p2.startCharge();
+            },
+            handleKeyUp(e) {
+                if(!this.isActive) return;
+                if(e.code === this.p1.key && this.p1.isCharging) this.p1.shoot();
+                if(e.code === this.p2.key && this.p2.isCharging) this.p2.shoot();
+            }
+        };
+
+        // --- Global Input Handling ---
+        document.addEventListener('keydown', (e) => {
+            if (currentMode === '1p') Game1.handleKeyDown(e);
+            if (currentMode === '2p') Game2.handleKeyDown(e);
+        });
+        document.addEventListener('keyup', (e) => {
+            if (currentMode === '1p') Game1.handleKeyUp(e);
+            if (currentMode === '2p') Game2.handleKeyUp(e);
+        });
+
+    </script>
+</body>
+</html>
+
